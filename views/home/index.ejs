@@ -117,7 +117,7 @@
                     data.forEach(el => {
                         var marker = new google.maps.Marker({
                             position: { lat: el.localizacao.latitude, lng: el.localizacao.longitude },
-                            icon: '/images/icons/' + el.status + '.png',
+                            icon: 'images/icons/' + el.status.toLowerCase() + '.png',
                             title: el.nomeMotorista + " - " + el.placa
                         });
                         markers.push(marker);
@@ -147,7 +147,7 @@
                     var el = data.content[0].content;
                     var marker = new google.maps.Marker({
                         position: { lat: el.localizacao.latitude, lng: el.localizacao.longitude },
-                        icon: '/images/icons/atendendo.png',
+                        icon: 'images/icons/atendendo.png',
                         title: el.nomeMotorista + " - " + el.placa
                     });
                     marker.setAnimation(google.maps.Animation.BOUNCE);
