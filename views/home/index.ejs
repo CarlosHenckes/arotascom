@@ -24,9 +24,10 @@
             <a class="navbar-brand mb-0 h1" href="/">
                 <img src="images/logo.png" width="32" height="32" class="d-inline-block align-top" alt=""> AROTAS
             </a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText"
+                aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
-              </button>
+            </button>
             <div class="collapse navbar-collapse" id="navbarText">
                 <ul class="navbar-nav ml-auto">
                     <li class="nav-item">
@@ -85,6 +86,7 @@
                 <div id="rundetails" class="row p-2"></div>
             </div>
         </div>
+        <span onclick="travel();">click</span>
     </div>
 
 
@@ -98,6 +100,8 @@
         var coordenadas = { lat: -23.574050, lng: -46.623072 };
         var mapa;
         var markers = [];
+        var directionDisplay;
+        var directionsService;
 
         function makeMap() {
 
@@ -113,6 +117,10 @@
                 icon: 'images/icons/eu.png',
                 title: 'Você está aqui!'
             });
+
+            directionsService = new google.maps.DirectionsService;
+            directionsDisplay = new google.maps.DirectionsRenderer;
+
 
             $.ajax({
                 url: 'https://cors-anywhere.herokuapp.com/https://arotas.herokuapp.com/loc',
@@ -154,7 +162,7 @@
                 },
                 dataType: 'json',
                 success: function (data) {
-                    if (data == undefined){
+                    if (data == undefined) {
                         alert('Não existem carros próximos no momento');
                         return;
                     }
@@ -167,12 +175,17 @@
                     marker.setAnimation(google.maps.Animation.BOUNCE);
                     marker.setMap(mapa);
 
+                    // alter car status
                     changeStatus(JSON.stringify(el));
 
+                    // increase car kilometers served
                     var d = new Date();
-                    var jso = {"horaInicio": d.getTime(), "placa": el.placa, "percorrida": kms};
+                    var jso = { "horaInicio": d.getTime(), "placa": el.placa, "percorrida": kms };
                     console.log(jso);
                     addRun(jso);
+
+                    // route path to map
+                    setRoute(coordenadas, "caminho dos vianas, 601");
 
                 }, beforeSend: function () {
                     $('#btncall').text('chamando...').attr('disabled', 'disabled');
@@ -182,13 +195,12 @@
             });
         }
 
-        function changeStatus(driver)
-        {
+        function changeStatus(driver) {
             var driv = JSON.parse(driver);
             driv.status = "TRANSITO";
             $.ajax({
                 url: 'https://cors-anywhere.herokuapp.com/https://arotas.herokuapp.com/loc',
-                headers: {"X-HTTP-Method-Override": "PUT"},
+                headers: { "X-HTTP-Method-Override": "PUT" },
                 dataType: 'json',
                 data: JSON.stringify(driv),
                 error: function (xhr, status, error) {
@@ -201,10 +213,10 @@
             });
         }
 
-        function addRun(driver){
+        function addRun(driver) {
             $.ajax({
                 url: 'https://cors-anywhere.herokuapp.com/https://arotas.herokuapp.com/loc/corrida',
-                headers: {"X-HTTP-Method-Override": "POST"},
+                headers: { "X-HTTP-Method-Override": "POST" },
                 dataType: 'json',
                 data: JSON.stringify(driver),
                 error: function (xhr, status, error) {
@@ -244,6 +256,21 @@
 
         });
 
+        function setRoute(inicio, fim) {
+            directionsDisplay.setMap(mapa);
+            directionsService.route({
+                origin: inicio,
+                destination: fim,
+                travelMode: 'DRIVING'
+            }, function (response, status) {
+                if (status === 'OK') {
+                    directionsDisplay.setDirections(response);
+                } else {
+                    window.alert('Directions request failed due to ' + status);
+                }
+            });
+        }
+
         function getDistance(obj) {
             $('#places').hide(400);
             $('#rundetails').show();
@@ -282,7 +309,7 @@
                         str += "<br>";
                         str += "<strong>Valor Corrida: </strong>R$" + Math.round((results[0].distance.value * (pricePerKm / 1000)) * 100) / 100;
                         str += "<br>";
-                        str += "<button id='btncall' class='btn btn-sm btn-primary' onclick='chamarVeiculo(null, "+ (results[0].distance.value/1000) + ");'>chamar carro</button>";
+                        str += "<button id='btncall' class='btn btn-sm btn-primary' onclick='chamarVeiculo(null, " + (results[0].distance.value / 1000) + ");'>chamar carro</button>";
                         str += "</p>";
                         //$('#rundetails').html(str);
                         document.getElementById('rundetails').innerHTML = str;
@@ -291,6 +318,8 @@
                 }
             }
         }
+
+
 
     </script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBnHfMeAC1LvB60v3ms__6KRd1OsnOV77A&callback=makeMap"></script>
