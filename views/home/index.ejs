@@ -139,13 +139,13 @@
             });
         }
 
-        function chamarVeiculo(map) {
+        function chamarVeiculo(map, kms) {
             for (var i = 0; i < markers.length; i++) {
                 markers[i].setMap(map);
             }
 
             $.ajax({
-                url: 'https://cors-anywhere.herokuapp.com/https://arotas.herokuapp.com/loc/near/' + coordenadas.lat + '/' + coordenadas.lng + '/1.0',
+                url: 'https://cors-anywhere.herokuapp.com/https://arotas.herokuapp.com/loc/near/' + coordenadas.lat + '/' + coordenadas.lng + '/100.0',
                 data: {
                     format: 'json'
                 },
@@ -154,6 +154,10 @@
                 },
                 dataType: 'json',
                 success: function (data) {
+                    if (data == undefined){
+                        alert('Não existem carros próximos no momento');
+                        return;
+                    }
                     var el = data.content[0].content;
                     var marker = new google.maps.Marker({
                         position: { lat: el.localizacao.latitude, lng: el.localizacao.longitude },
@@ -162,10 +166,53 @@
                     });
                     marker.setAnimation(google.maps.Animation.BOUNCE);
                     marker.setMap(mapa);
+
+                    changeStatus(JSON.stringify(el));
+
+                    var d = new Date();
+                    var jso = {"horaInicio": d.getTime(), "placa": el.placa, "percorrida": kms};
+                    console.log(jso);
+                    addRun(jso);
+
                 }, beforeSend: function () {
                     $('#btncall').text('chamando...').attr('disabled', 'disabled');
                 },
                 type: 'GET',
+                contentType: "application/json"
+            });
+        }
+
+        function changeStatus(driver)
+        {
+            var driv = JSON.parse(driver);
+            driv.status = "TRANSITO";
+            $.ajax({
+                url: 'https://cors-anywhere.herokuapp.com/https://arotas.herokuapp.com/loc',
+                headers: {"X-HTTP-Method-Override": "PUT"},
+                dataType: 'json',
+                data: JSON.stringify(driv),
+                error: function (xhr, status, error) {
+                    console.log('An error has occurred: ' + xhr.status + "-" + status + " - " + error);
+                },
+                success: function (data) {
+                },
+                type: 'PUT',
+                contentType: "application/json"
+            });
+        }
+
+        function addRun(driver){
+            $.ajax({
+                url: 'https://cors-anywhere.herokuapp.com/https://arotas.herokuapp.com/loc/corrida',
+                headers: {"X-HTTP-Method-Override": "POST"},
+                dataType: 'json',
+                data: JSON.stringify(driver),
+                error: function (xhr, status, error) {
+                    console.log('An error has occurred: ' + xhr.status + "-" + status + " - " + error);
+                },
+                success: function (data) {
+                },
+                type: 'POST',
                 contentType: "application/json"
             });
         }
@@ -235,7 +282,7 @@
                         str += "<br>";
                         str += "<strong>Valor Corrida: </strong>R$" + Math.round((results[0].distance.value * (pricePerKm / 1000)) * 100) / 100;
                         str += "<br>";
-                        str += "<button id='btncall' class='btn btn-sm btn-primary' onclick='chamarVeiculo(null);'>chamar carro</button>";
+                        str += "<button id='btncall' class='btn btn-sm btn-primary' onclick='chamarVeiculo(null, "+ (results[0].distance.value/1000) + ");'>chamar carro</button>";
                         str += "</p>";
                         //$('#rundetails').html(str);
                         document.getElementById('rundetails').innerHTML = str;
