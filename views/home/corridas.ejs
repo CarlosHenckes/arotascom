@@ -41,6 +41,49 @@
     <div class="container">
         <h4>Relatório de Corridas</h4>
 
+        <!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <title>ARotas - Outsmart traffic!</title>
+    <style>
+        .steps {
+            background-image: url('/images/bgsteps.png');
+            background-repeat: no-repeat;
+            background-position-x: 40px;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-light navbar-expand-lg bg-light">
+        <div class="container">
+            <a class="navbar-brand mb-0 h1" href="/">
+                <img src="images/logo.png" width="32" height="32" class="d-inline-block align-top" alt=""> AROTAS
+            </a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText"
+                aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarText">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/corridas">Corridas</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h4>Relatório de Corridas</h4>
+
         <table id="cors" class="table">
             <thead>
                 <tr>
@@ -51,6 +94,35 @@
             <tbody>
             </tbody>
         </table>
+    </div>
+
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <script>
+        $.ajax({
+            url: 'https://cors-anywhere.herokuapp.com/https://arotas.herokuapp.com/loc/percorridas',
+            data: {
+                format: 'json'
+            },
+            error: function (xhr, status, error) {
+                console.log('An error has occurred: ' + xhr.status + "-" + status + " - " + error);
+            },
+            dataType: 'json',
+            success: function (data) {
+                for (var i = 0; i < data.length; i++)
+                    $('#cors > tbody:last-child').append('<tr><td>' + data[i].placa + '</td><td>' + data[i].kilometrosPercorridos + '</td></tr>');
+            },
+            type: 'GET',
+            contentType: "application/json"
+        });
+    </script>
+</body>
+
+</html>
     </div>
 
 

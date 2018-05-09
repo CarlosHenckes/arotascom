@@ -9,6 +9,9 @@ module.exports = function (app) {
         },
         corridas: function (req, res) {            
             res.render('home/corridas');
+        },
+        frota: function (req, res){
+            res.render('home/frota');
         }
     };
     return HomeController;

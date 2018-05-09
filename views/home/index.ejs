@@ -31,7 +31,13 @@
             <div class="collapse navbar-collapse" id="navbarText">
                 <ul class="navbar-nav ml-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="/corridas">Corridas</a>
+                        <a class="nav-link" href="/cadastrar">Cadastrar veículo</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/frota">Frota</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/corridas">Relatório de viagens</a>
                     </li>
                 </ul>
             </div>
@@ -72,21 +78,18 @@
             </div>
             <div class="col-4">
                 <div class="row p-2">
-                    <form action="#" class="form-inline">
-                        <div class="input-group mb-3">
-                            <input id="query" type="text" class="form-control" placeholder="procurar destino..." aria-label="procurar destino..." aria-describedby="basic-addon2">
-                            <div class="input-group-append">
-                                <button id="search" class="btn btn-outline-secondary" type="button">buscar</button>
-                            </div>
+                    <div id="formSearch" class="input-group mb-3">
+                        <input id="query" type="text" class="form-control" placeholder="procurar destino..." aria-label="procurar destino..." aria-describedby="basic-addon2">
+                        <div class="input-group-append">
+                            <button id="search" class="btn btn-outline-secondary" type="button">buscar</button>
                         </div>
-                    </form>
+                    </div>
                 </div>
                 <div id="places" class="row p-2">
                 </div>
                 <div id="rundetails" class="row p-2"></div>
             </div>
         </div>
-        <span onclick="travel();">click</span>
     </div>
 
 
@@ -97,11 +100,17 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
     <script>
         var pricePerKm = 1.10;
-        var coordenadas = { lat: -23.574050, lng: -46.623072 };
+        var coordenadas = { lat: -23.574005, lng: -46.623072 };
         var mapa;
+        var hereAreIam;             // user marker
         var markers = [];
         var directionDisplay;
         var directionsService;
+        var carAtendingObj;
+        var carAtending;            // holds marker for car
+        var carAtendingPosition;    // car position when called
+        var currentUserPosition;    // user position
+        var finalUserPosition;      // user final destiny
 
         function makeMap() {
 
@@ -111,7 +120,7 @@
                 mapTypeId: google.maps.MapTypeId.ROADMAP
             });
 
-            var marker = new google.maps.Marker({
+            hereAreIam = new google.maps.Marker({
                 position: coordenadas,
                 map: mapa,
                 icon: 'images/icons/eu.png',
@@ -120,7 +129,6 @@
 
             directionsService = new google.maps.DirectionsService;
             directionsDisplay = new google.maps.DirectionsRenderer;
-
 
             $.ajax({
                 url: 'https://cors-anywhere.herokuapp.com/https://arotas.herokuapp.com/loc',
@@ -145,6 +153,47 @@
                 type: 'GET',
                 contentType: "application/json"
             });
+
+            getLocation();
+        }
+
+        // try to get current user position
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    coordenadas.lat = position.coords.latitude;
+                    coordenadas.lng = position.coords.longitude;
+                    hereAreIam.setPosition(coordenadas);
+                    mapaCentering(coordenadas);
+                });
+            } else {
+                alert("Não foi possível fazer a sua localização...");
+            }
+        }
+
+        function mapaCentering(coordenadas) {
+            mapa.setCenter(coordenadas);
+        }
+
+        function moveVehicle(response, callback) {
+            var path = response.routes[0].overview_path;
+            var maxIter = path.length;
+
+            var delay = 20, count = 0;
+            function delayed() {
+                count += 1;
+                carAtending.setPosition({ lat: path[count].lat(), lng: path[count].lng() });
+                hereAreIam.setPosition({ lat: path[count].lat(), lng: path[count].lng() });
+                if (count < maxIter - 1) {
+                    setTimeout(delayed, delay);
+                } else if (count == maxIter - 1) {
+                    changeStatus(JSON.stringify(carAtendingObj), "LIVRE");
+                    var local = { "latitude": path[count].lat(), "longitude": path[count].lng() };
+                    updateCarPosition(JSON.stringify(carAtendingObj), local);
+                    callback(true);
+                }
+            }
+            delayed();
         }
 
         function chamarVeiculo(map, kms) {
@@ -162,21 +211,23 @@
                 },
                 dataType: 'json',
                 success: function (data) {
-                    if (data == undefined) {
+                    if (data.content[0] === undefined) {
                         alert('Não existem carros próximos no momento');
                         return;
                     }
+                    $('#btncall').text('aguardando...');
                     var el = data.content[0].content;
-                    var marker = new google.maps.Marker({
-                        position: { lat: el.localizacao.latitude, lng: el.localizacao.longitude },
+                    carAtendingObj = el;
+                    carAtendingPosition = { lat: el.localizacao.latitude, lng: el.localizacao.longitude };
+                    carAtending = new google.maps.Marker({
+                        position: carAtendingPosition,
                         icon: 'images/icons/atendendo.png',
-                        title: el.nomeMotorista + " - " + el.placa
+                        title: el.nomeMotorista + " - " + el.placa,
+                        map: mapa
                     });
-                    marker.setAnimation(google.maps.Animation.BOUNCE);
-                    marker.setMap(mapa);
 
                     // alter car status
-                    changeStatus(JSON.stringify(el));
+                    changeStatus(JSON.stringify(el), "TRANSITO");
 
                     // increase car kilometers served
                     var d = new Date();
@@ -184,8 +235,15 @@
                     console.log(jso);
                     addRun(jso);
 
-                    // route path to map
-                    setRoute(coordenadas, "caminho dos vianas, 601");
+                    // route car to user
+                    setRoute(carAtendingPosition, coordenadas, function (resp) {
+                        if (resp) {
+                            // route car and user to destiny
+                            setRoute(coordenadas, finalUserPosition, (resp)=>{
+                                // a viagem terminou
+                            });
+                        }
+                    });                    
 
                 }, beforeSend: function () {
                     $('#btncall').text('chamando...').attr('disabled', 'disabled');
@@ -195,9 +253,28 @@
             });
         }
 
-        function changeStatus(driver) {
+        function changeStatus(driver, carStatus) {
             var driv = JSON.parse(driver);
-            driv.status = "TRANSITO";
+            driv.status = carStatus;
+            $.ajax({
+                url: 'https://cors-anywhere.herokuapp.com/https://arotas.herokuapp.com/loc',
+                headers: { "X-HTTP-Method-Override": "PUT" },
+                dataType: 'json',
+                data: JSON.stringify(driv),
+                error: function (xhr, status, error) {
+                    console.log('An error has occurred: ' + xhr.status + "-" + status + " - " + error);
+                },
+                success: function (data) {
+                },
+                type: 'PUT',
+                contentType: "application/json"
+            });
+        }
+
+        function updateCarPosition(driver, local) {
+            var driv = JSON.parse(driver);
+            driv.localizacao.latitude = local.latitude;
+            driv.localizacao.longitude = local.longitude;
             $.ajax({
                 url: 'https://cors-anywhere.herokuapp.com/https://arotas.herokuapp.com/loc',
                 headers: { "X-HTTP-Method-Override": "PUT" },
@@ -256,7 +333,7 @@
 
         });
 
-        function setRoute(inicio, fim) {
+        function setRoute(inicio, fim, callback) {
             directionsDisplay.setMap(mapa);
             directionsService.route({
                 origin: inicio,
@@ -265,13 +342,17 @@
             }, function (response, status) {
                 if (status === 'OK') {
                     directionsDisplay.setDirections(response);
+                    moveVehicle(response, (resp)=>{ if(resp){callback(true);}});
+                    
                 } else {
-                    window.alert('Directions request failed due to ' + status);
+                    window.alert('Falha na aquisição dos caminhos - ' + status);
                 }
             });
         }
 
         function getDistance(obj) {
+            // fechar pesquisar
+            $('#formSearch').hide(400);
             $('#places').hide(400);
             $('#rundetails').show();
             var obj = JSON.parse(decodeURI(obj));
@@ -300,6 +381,7 @@
                             var from = origins[i];
                             var to = destinations[j];
                         }
+                        finalUserPosition = obj.formatted_address;
 
                         var str = "<p><strong>Destino: </strong>" + obj.formatted_address;
                         str += "<br>";
@@ -318,8 +400,6 @@
                 }
             }
         }
-
-
 
     </script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBnHfMeAC1LvB60v3ms__6KRd1OsnOV77A&callback=makeMap"></script>
