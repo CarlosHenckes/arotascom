@@ -8,7 +8,7 @@
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
-    <title>ARotas - Outsmart traffic!</title>
+    <title>ARotas - Outsmarting traffic!</title>
     <style>
         .steps {
             background-image: url('/images/bgsteps.png');
@@ -20,368 +20,401 @@
 
 <body>
     <%- include('../navbar') %>
-    
-    <div style="background-color: #e6f3ff;">
-        <div class="container">
-            <div class="row">
-                <div class="col-4 align-middle p-3 steps text-center" style="height: 50px;">PESQUISAR DESTINO</div>
-                <div class="col-4 align-middle p-3 steps text-center" style="height: 50px;">CONFIRMAR DESTINO</div>
-                <div class="col-4 align-middle p-3 steps text-center" style="height: 50px;">CHAMAR CARRO</div>
-            </div>
-        </div>
-    </div>
-    </div>
-    <div class="container">
-        <div class="row mt-4">
-            <div class="col-8">
-                <div id="mapa" style="width:100%; height:480px;"></div>
-                <div class="row p-3">
-                    <div class="col-3 text-center">
-                        <img src="images/icons/livre.png">
-                        <small>DISPONÍVEL</small>
-                    </div>
-                    <div class="col-3 text-center">
-                        <img src="images/icons/inativo.png">
-                        <small>INATIVO</small>
-                    </div>
-                    <div class="col-3 text-center">
-                        <img src="images/icons/manutencao.png">
-                        <small>MANUTENÇÃO</small>
-                    </div>
-                    <div class="col-3 text-center">
-                        <img src="images/icons/transito.png">
-                        <small>TRÂNSITO</small>
-                    </div>
+
+        <div style="background-color: #e6f3ff;">
+            <div class="container">
+                <div class="row">
+                    <div class="col-4 align-middle p-3 steps text-center" style="height: 50px;">PESQUISAR DESTINO</div>
+                    <div class="col-4 align-middle p-3 steps text-center" style="height: 50px;">CONFIRMAR DESTINO</div>
+                    <div class="col-4 align-middle p-3 steps text-center" style="height: 50px;">CHAMAR CARRO</div>
                 </div>
             </div>
-            <div class="col-4">
-                <div class="row p-2">
-                    <div id="formSearch" class="input-group mb-3">
-                        <input id="query" type="text" class="form-control" placeholder="procurar destino..." aria-label="procurar destino..." aria-describedby="basic-addon2">
-                        <div class="input-group-append">
-                            <button id="search" class="btn btn-outline-secondary" type="button">buscar</button>
+        </div>
+        </div>
+        <div class="container">
+            <div class="row mt-4">
+                <div class="col-8">
+                    <div id="mapa" style="width:100%; height:480px;"></div>
+                    <div class="row p-3">
+                        <div class="col-3 text-center">
+                            <img src="images/icons/livre.png">
+                            <small>DISPONÍVEL</small>
+                        </div>
+                        <div class="col-3 text-center">
+                            <img src="images/icons/inativo.png">
+                            <small>INATIVO</small>
+                        </div>
+                        <div class="col-3 text-center">
+                            <img src="images/icons/manutencao.png">
+                            <small>MANUTENÇÃO</small>
+                        </div>
+                        <div class="col-3 text-center">
+                            <img src="images/icons/transito.png">
+                            <small>TRÂNSITO</small>
                         </div>
                     </div>
                 </div>
-                <div id="places" class="row p-2">
+                <div class="col-4">
+                    <div class="row p-2">
+                        <div id="msgs" class="alert alert-info" style="width: 100%;">
+                            Pesquise o seu destino...
+                        </div>
+                        <div id="formSearch" class="input-group mb-3">
+                            <input id="query" type="text" class="form-control" placeholder="procurar destino..." aria-label="procurar destino..." aria-describedby="basic-addon2">
+                            <div class="input-group-append">
+                                <button id="search" class="btn btn-outline-secondary" type="button">buscar</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="places" class="row p-2">
+                    </div>
+                    <div id="rundetails" class="row p-2"></div>
+                    <div class="row p-2">
+                        <button id="btnrerun" class="btn btn-default" style="display: none;">Reiniciar</button>
+                    </div>
+                    <div class="row p-2">
+                        <p class="text-center" style="width: 100%;"><small id="reload">não obrigado, disistí.</small></p>
+                    </div>
                 </div>
-                <div id="rundetails" class="row p-2"></div>
             </div>
         </div>
-    </div>
 
 
-    <!-- Optional JavaScript -->
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
-    <script>
-        var pricePerKm = 1.10;
-        var coordenadas = { lat: -23.574005, lng: -46.623072 };
-        var mapa;
-        var hereAreIam;             // user marker
-        var markers = [];
-        var directionDisplay;
-        var directionsService;
-        var carAtendingObj;
-        var carAtending;            // holds marker for car
-        var carAtendingPosition;    // car position when called
-        var currentUserPosition;    // user position
-        var finalUserPosition;      // user final destiny
+        <!-- Optional JavaScript -->
+        <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+        <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+        <script>
+            var pricePerKm = 1.10;
+            var coordenadas = { lat: -23.574005, lng: -46.623072 };
+            var mapa;
+            var hereAreIam;             // user marker
+            var markers = [];
+            var directionDisplay;
+            var directionsService;
+            var carAtendingObj;
+            var carAtending;              // holds marker for car
+            var carAtendingPosition;      // car position when called
+            var currentUserPosition;      // user position
+            var finalUserPosition;        // user final destiny
+            var carAtendingFinalTripPos;  // latlgn of car
 
-        function makeMap() {
+            function msgChange(text) {
+                $('#msgs').html(text);
+            }
 
-            mapa = new google.maps.Map(document.getElementById('mapa'), {
-                zoom: 14,
-                center: coordenadas,
-                mapTypeId: google.maps.MapTypeId.ROADMAP
-            });
+            $('#btnrerun').on('click', function () { windowReload(); });
 
-            hereAreIam = new google.maps.Marker({
-                position: coordenadas,
-                map: mapa,
-                icon: 'images/icons/eu.png',
-                title: 'Você está aqui!'
-            });
+            $('#reload').on('click', function(){ windowReload(); });
 
-            directionsService = new google.maps.DirectionsService;
-            directionsDisplay = new google.maps.DirectionsRenderer;
+            function windowReload(){
+                window.location.reload();
+            }
 
-            $.ajax({
-                url: 'https://cors-anywhere.herokuapp.com/https://arotas.herokuapp.com/loc',
-                data: {
-                    format: 'json'
-                },
-                error: function (xhr, status, error) {
-                    console.log('An error has occurred: ' + xhr.status + "-" + status + " - " + error);
-                },
-                dataType: 'json',
-                success: function (data) {
-                    data.forEach(el => {
-                        var marker = new google.maps.Marker({
-                            position: { lat: el.localizacao.latitude, lng: el.localizacao.longitude },
-                            icon: 'images/icons/' + el.status.toLowerCase() + '.png',
-                            title: el.nomeMotorista + " - " + el.placa
-                        });
-                        markers.push(marker);
-                        marker.setMap(mapa);
-                    });
-                },
-                type: 'GET',
-                contentType: "application/json"
-            });
+            function makeMap() {
 
-            getLocation();
-        }
-
-        // try to get current user position
-        function getLocation() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function (position) {
-                    coordenadas.lat = position.coords.latitude;
-                    coordenadas.lng = position.coords.longitude;
-                    hereAreIam.setPosition(coordenadas);
-                    mapaCentering(coordenadas);
+                mapa = new google.maps.Map(document.getElementById('mapa'), {
+                    zoom: 14,
+                    center: coordenadas,
+                    mapTypeId: google.maps.MapTypeId.ROADMAP
                 });
-            } else {
-                alert("Não foi possível fazer a sua localização...");
-            }
-        }
 
-        function mapaCentering(coordenadas) {
-            mapa.setCenter(coordenadas);
-        }
+                hereAreIam = new google.maps.Marker({
+                    position: coordenadas,
+                    map: mapa,
+                    icon: 'images/icons/eu.png',
+                    title: 'Você está aqui!'
+                });
 
-        function moveVehicle(response, callback) {
-            var path = response.routes[0].overview_path;
-            var maxIter = path.length;
+                directionsService = new google.maps.DirectionsService;
+                directionsDisplay = new google.maps.DirectionsRenderer;
 
-            var delay = 20, count = 0;
-            function delayed() {
-                count += 1;
-                carAtending.setPosition({ lat: path[count].lat(), lng: path[count].lng() });
-                hereAreIam.setPosition({ lat: path[count].lat(), lng: path[count].lng() });
-                if (count < maxIter - 1) {
-                    setTimeout(delayed, delay);
-                } else if (count == maxIter - 1) {
-                    changeStatus(JSON.stringify(carAtendingObj), "LIVRE");
-                    var local = { "latitude": path[count].lat(), "longitude": path[count].lng() };
-                    updateCarPosition(JSON.stringify(carAtendingObj), local);
-                    callback(true);
-                }
-            }
-            delayed();
-        }
-
-        function chamarVeiculo(map, kms) {
-            for (var i = 0; i < markers.length; i++) {
-                markers[i].setMap(map);
-            }
-
-            $.ajax({
-                url: 'https://cors-anywhere.herokuapp.com/https://arotas.herokuapp.com/loc/near/' + coordenadas.lat + '/' + coordenadas.lng + '/100.0',
-                data: {
-                    format: 'json'
-                },
-                error: function (xhr, status, error) {
-                    console.log('An error has occurred: ' + xhr.status + "-" + status + " - " + error);
-                },
-                dataType: 'json',
-                success: function (data) {
-                    if (data.content[0] === undefined) {
-                        alert('Não existem carros próximos no momento');
-                        return;
-                    }
-                    $('#btncall').text('aguardando...');
-                    var el = data.content[0].content;
-                    carAtendingObj = el;
-                    carAtendingPosition = { lat: el.localizacao.latitude, lng: el.localizacao.longitude };
-                    carAtending = new google.maps.Marker({
-                        position: carAtendingPosition,
-                        icon: 'images/icons/atendendo.png',
-                        title: el.nomeMotorista + " - " + el.placa,
-                        map: mapa
-                    });
-
-                    // alter car status
-                    changeStatus(JSON.stringify(el), "TRANSITO");
-
-                    // increase car kilometers served
-                    var d = new Date();
-                    var jso = { "horaInicio": d.getTime(), "placa": el.placa, "percorrida": kms };
-                    console.log(jso);
-                    addRun(jso);
-
-                    // route car to user
-                    setRoute(carAtendingPosition, coordenadas, function (resp) {
-                        if (resp) {
-                            // route car and user to destiny
-                            setRoute(coordenadas, finalUserPosition, (resp)=>{
-                                // a viagem terminou
+                $.ajax({
+                    url: 'https://cors-anywhere.herokuapp.com/https://arotas.herokuapp.com/loc',
+                    data: {
+                        format: 'json'
+                    },
+                    error: function (xhr, status, error) {
+                        console.log('An error has occurred: ' + xhr.status + "-" + status + " - " + error);
+                    },
+                    dataType: 'json',
+                    success: function (data) {
+                        data.forEach(el => {
+                            var marker = new google.maps.Marker({
+                                position: { lat: el.localizacao.latitude, lng: el.localizacao.longitude },
+                                icon: 'images/icons/' + el.status.toLowerCase() + '.png',
+                                title: el.nomeMotorista + " - " + el.placa
                             });
-                        }
-                    });                    
+                            markers.push(marker);
+                            marker.setMap(mapa);
+                        });
+                    },
+                    type: 'GET',
+                    contentType: "application/json"
+                });
 
-                }, beforeSend: function () {
-                    $('#btncall').text('chamando...').attr('disabled', 'disabled');
-                },
-                type: 'GET',
-                contentType: "application/json"
-            });
-        }
+                getLocation();
+            }
 
-        function changeStatus(driver, carStatus) {
-            var driv = JSON.parse(driver);
-            driv.status = carStatus;
-            $.ajax({
-                url: 'https://cors-anywhere.herokuapp.com/https://arotas.herokuapp.com/loc',
-                headers: { "X-HTTP-Method-Override": "PUT" },
-                dataType: 'json',
-                data: JSON.stringify(driv),
-                error: function (xhr, status, error) {
-                    console.log('An error has occurred: ' + xhr.status + "-" + status + " - " + error);
-                },
-                success: function (data) {
-                },
-                type: 'PUT',
-                contentType: "application/json"
-            });
-        }
-
-        function updateCarPosition(driver, local) {
-            var driv = JSON.parse(driver);
-            driv.localizacao.latitude = local.latitude;
-            driv.localizacao.longitude = local.longitude;
-            $.ajax({
-                url: 'https://cors-anywhere.herokuapp.com/https://arotas.herokuapp.com/loc',
-                headers: { "X-HTTP-Method-Override": "PUT" },
-                dataType: 'json',
-                data: JSON.stringify(driv),
-                error: function (xhr, status, error) {
-                    console.log('An error has occurred: ' + xhr.status + "-" + status + " - " + error);
-                },
-                success: function (data) {
-                },
-                type: 'PUT',
-                contentType: "application/json"
-            });
-        }
-
-        function addRun(driver) {
-            $.ajax({
-                url: 'https://cors-anywhere.herokuapp.com/https://arotas.herokuapp.com/loc/corrida',
-                headers: { "X-HTTP-Method-Override": "POST" },
-                dataType: 'json',
-                data: JSON.stringify(driver),
-                error: function (xhr, status, error) {
-                    console.log('An error has occurred: ' + xhr.status + "-" + status + " - " + error);
-                },
-                success: function (data) {
-                },
-                type: 'POST',
-                contentType: "application/json"
-            });
-        }
-
-        $(document).ready(function () {
-            $('#search').on('click', function (e) {
-                e.preventDefault();
-                $('#places').show(); $('#rundetails').hide();
-                var q = $('#query').val();
-                if (q.length <= 0 || q === 'undefined') return
-                var str = '<table class="table table-sm"><tbody>';
-                var xhttp = new XMLHttpRequest();
-                xhttp.onreadystatechange = function () {
-                    if (this.readyState == 4 && this.status == 200) {
-                        var result = JSON.parse(this.responseText);
-                        var amostra = (result.results.length > 10) ? 10 : result.results.length;
-
-                        for (var i = 0; i < amostra; i++) {
-                            str += "<tr><td><small><a href=javascript:getDistance('" + encodeURI(JSON.stringify(result.results[i])) + "')>"
-                                + result.results[i].formatted_address + '</a></small></td></tr>';
-                        }
-                        str += '</tbody></table>';
-                        $('#places').html(str);
-                    }
-                };
-                xhttp.open("GET", "https://maps.googleapis.com/maps/api/geocode/json?address=" + q + "&key=AIzaSyBnHfMeAC1LvB60v3ms__6KRd1OsnOV77A", true);
-                xhttp.send();
-            });
-
-        });
-
-        function setRoute(inicio, fim, callback) {
-            directionsDisplay.setMap(mapa);
-            directionsService.route({
-                origin: inicio,
-                destination: fim,
-                travelMode: 'DRIVING'
-            }, function (response, status) {
-                if (status === 'OK') {
-                    directionsDisplay.setDirections(response);
-                    moveVehicle(response, (resp)=>{ if(resp){callback(true);}});
-                    
+            // try to get current user position
+            function getLocation() {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(function (position) {
+                        coordenadas.lat = position.coords.latitude;
+                        coordenadas.lng = position.coords.longitude;
+                        hereAreIam.setPosition(coordenadas);
+                        mapaCentering(coordenadas);
+                    });
                 } else {
-                    window.alert('Falha na aquisição dos caminhos - ' + status);
+                    alert("Não foi possível fazer a sua localização...");
                 }
-            });
-        }
+            }
 
-        function getDistance(obj) {
-            // fechar pesquisar
-            $('#formSearch').hide(400);
-            $('#places').hide(400);
-            $('#rundetails').show();
-            var obj = JSON.parse(decodeURI(obj));
-            var from = new google.maps.LatLng(-23.574050, -46.623072);
-            var dest = new google.maps.LatLng(obj.geometry.location.lat, obj.geometry.location.lng);
-            console.log(obj)
-            var service = new google.maps.DistanceMatrixService();
-            service.getDistanceMatrix(
-                {
-                    origins: [from],
-                    destinations: [dest],
-                    travelMode: 'DRIVING'
-                }, callback);
+            function mapaCentering(coordenadas) {
+                mapa.setCenter(coordenadas);
+            }
 
-            function callback(response, status) {
-                if (status == 'OK') {
-                    var origins = response.originAddresses;
-                    var destinations = response.destinationAddresses;
+            function moveVehicle(response, callback) {
+                var path = response.routes[0].overview_path;
+                var maxIter = path.length;
 
-                    for (var i = 0; i < origins.length; i++) {
-                        var results = response.rows[i].elements;
-                        for (var j = 0; j < results.length; j++) {
-                            var element = results[j];
-                            var distance = element.distance.text;
-                            var duration = element.duration.text;
-                            var from = origins[i];
-                            var to = destinations[j];
+                var delay = 200, count = 0;
+                function delayed() {
+                    count += 1;
+                    carAtending.setPosition({ lat: path[count].lat(), lng: path[count].lng() });
+                    if (count < maxIter - 1) {
+                        setTimeout(delayed, delay);
+                    } else if (count == maxIter - 1) {
+                        changeStatus(JSON.stringify(carAtendingObj), "LIVRE");
+                        var local = { "latitude": path[count].lat(), "longitude": path[count].lng() };
+                        carAtendingFinalTripPos = local;
+                        callback(true);
+                    }
+                }
+                delayed();
+            }
+
+            function chamarVeiculo(map, kms) {
+                for (var i = 0; i < markers.length; i++) {
+                    markers[i].setMap(map);
+                }
+
+                $.ajax({
+                    url: 'https://cors-anywhere.herokuapp.com/https://arotas.herokuapp.com/loc/near/' + coordenadas.lat + '/' + coordenadas.lng + '/100.0',
+                    data: {
+                        format: 'json'
+                    },
+                    error: function (xhr, status, error) {
+                        console.log('An error has occurred: ' + xhr.status + "-" + status + " - " + error);
+                    },
+                    dataType: 'json',
+                    success: function (data) {
+                        if (data.content[0] === undefined) {
+                            alert('Não existem carros próximos no momento');
+                            return;
                         }
-                        finalUserPosition = obj.formatted_address;
+                        $('#btncall').hide();
+                        var el = data.content[0].content;
+                        carAtendingObj = el;
+                        carAtendingPosition = { lat: el.localizacao.latitude, lng: el.localizacao.longitude };
+                        carAtending = new google.maps.Marker({
+                            position: carAtendingPosition,
+                            icon: 'images/icons/atendendo.png',
+                            title: el.nomeMotorista + " - " + el.placa,
+                            map: mapa
+                        });
 
-                        var str = "<p><strong>Destino: </strong>" + obj.formatted_address;
-                        str += "<br>";
-                        str += "<strong>Distância: </strong>" + results[0].distance.text;
-                        str += "<br>";
-                        str += "<strong>Tempo aprox.: </strong>" + results[0].duration.text;
-                        str += "<br>";
-                        str += "<strong>Valor Corrida: </strong>R$" + Math.round((results[0].distance.value * (pricePerKm / 1000)) * 100) / 100;
-                        str += "<br>";
-                        str += "<button id='btncall' class='btn btn-sm btn-primary' onclick='chamarVeiculo(null, " + (results[0].distance.value / 1000) + ");'>chamar carro</button>";
-                        str += "</p>";
-                        //$('#rundetails').html(str);
-                        document.getElementById('rundetails').innerHTML = str;
+                        // alter car status
+                        changeStatus(JSON.stringify(el), "TRANSITO");
 
+                        // increase car kilometers served
+                        var d = new Date();
+                        var jso = { "horaInicio": d.getTime(), "placa": el.placa, "percorrida": kms };
+                        addRun(jso);
+
+                        // route car to user
+                        msgChange('seu carro já está chegando...');
+                        setRoute(carAtendingPosition, coordenadas, function (resp) {
+                            if (resp) {
+                                // route car and user to destiny
+                                msgChange('em trânsito...');
+                                hereAreIam.setMap(null);
+                                setRoute(coordenadas, finalUserPosition, (resp) => {
+                                    // a viagem terminou
+                                    hereAreIam.setPosition({"lat":carAtendingFinalTripPos.latitude, "lng":carAtendingFinalTripPos.longitude});
+                                    hereAreIam.setMap(mapa);
+                                    updateCarPosition(JSON.stringify(carAtendingObj), carAtendingFinalTripPos);
+                                    msgChange('pronto, você chegou ao seu destino... Obrigado!');
+                                    $('#btnrerun').show();
+                                });
+                            }
+                        });
+
+                    }, beforeSend: function () {
+                        $('#btncall').text('chamando...').attr('disabled', 'disabled');
+                        msgChange('buscando carro livre mais próximo...');
+                    },
+                    type: 'GET',
+                    contentType: "application/json"
+                });
+            }
+
+            function changeStatus(driver, carStatus) {
+                var driv = JSON.parse(driver);
+                driv.status = carStatus;
+                $.ajax({
+                    url: 'https://cors-anywhere.herokuapp.com/https://arotas.herokuapp.com/loc',
+                    headers: { "X-HTTP-Method-Override": "PUT" },
+                    dataType: 'json',
+                    data: JSON.stringify(driv),
+                    error: function (xhr, status, error) {
+                        console.log('An error has occurred: ' + xhr.status + "-" + status + " - " + error);
+                    },
+                    success: function (data) {
+                    },
+                    type: 'PUT',
+                    contentType: "application/json"
+                });
+            }
+
+            async function updateCarPosition(driver, local) {
+                var driv = JSON.parse(driver);
+                driv.localizacao.latitude = local.latitude;
+                driv.localizacao.longitude = local.longitude;
+                $.ajax({
+                    url: 'https://cors-anywhere.herokuapp.com/https://arotas.herokuapp.com/loc',
+                    headers: { "X-HTTP-Method-Override": "PUT" },
+                    dataType: 'json',
+                    data: JSON.stringify(driv),
+                    error: function (xhr, status, error) {
+                        console.log('An error has occurred: ' + xhr.status + "-" + status + " - " + error);
+                    },
+                    //success: function (data) {
+                    //},
+                    type: 'PUT',
+                    contentType: "application/json"
+                });
+            }
+
+            function addRun(driver) {
+                $.ajax({
+                    url: 'https://cors-anywhere.herokuapp.com/https://arotas.herokuapp.com/loc/corrida',
+                    headers: { "X-HTTP-Method-Override": "POST" },
+                    dataType: 'json',
+                    data: JSON.stringify(driver),
+                    error: function (xhr, status, error) {
+                        console.log('An error has occurred: ' + xhr.status + "-" + status + " - " + error);
+                    },
+                    //success: function (data) {
+                    //},
+                    type: 'POST',
+                    contentType: "application/json"
+                });
+            }
+
+            $(document).ready(function () {
+                $('#search').on('click', function (e) {
+                    e.preventDefault();
+                    $('#places').show(); $('#rundetails').hide();
+                    var q = $('#query').val();
+                    if (q.length <= 0 || q === 'undefined') return
+                    msgChange('pesquisando endereços...');
+                    var str = '<table class="table table-sm"><tbody>';
+                    var xhttp = new XMLHttpRequest();
+                    xhttp.onreadystatechange = function () {
+                        if (this.readyState == 4 && this.status == 200) {
+                            var result = JSON.parse(this.responseText);
+                            var amostra = (result.results.length > 10) ? 10 : result.results.length;
+                            msgChange('selecione seu destino abaixo...');
+                            for (var i = 0; i < amostra; i++) {
+                                str += "<tr><td><small><a href=javascript:getDistance('" + encodeURI(JSON.stringify(result.results[i])) + "')>"
+                                    + result.results[i].formatted_address + '</a></small></td></tr>';
+                            }
+                            str += '</tbody></table>';
+                            $('#places').html(str);
+                        }
+                    };
+                    xhttp.open("GET", "https://maps.googleapis.com/maps/api/geocode/json?address=" + q + "&key=AIzaSyBnHfMeAC1LvB60v3ms__6KRd1OsnOV77A", true);
+                    xhttp.send();
+                });
+
+            });
+
+            function setRoute(inicio, fim, callback) {
+                directionsDisplay.setMap(mapa);
+                directionsService.route({
+                    origin: inicio,
+                    destination: fim,
+                    travelMode: 'DRIVING'
+                }, function (response, status) {
+                    if (status === 'OK') {
+                        directionsDisplay.setDirections(response);
+                        moveVehicle(response, (resp) => {
+                            if (resp) {
+                                callback(true);
+                            }
+                        });
+
+                    } else {
+                        window.alert('Falha na aquisição dos caminhos - ' + status);
+                    }
+                });
+            }
+
+            function getDistance(obj) {
+                // fechar pesquisar
+                $('#formSearch').hide(400);
+                $('#places').hide(400);
+                $('#rundetails').show();
+                var obj = JSON.parse(decodeURI(obj));
+                var from = new google.maps.LatLng(-23.574050, -46.623072);
+                var dest = new google.maps.LatLng(obj.geometry.location.lat, obj.geometry.location.lng);
+                console.log(obj)
+                var service = new google.maps.DistanceMatrixService();
+                service.getDistanceMatrix(
+                    {
+                        origins: [from],
+                        destinations: [dest],
+                        travelMode: 'DRIVING'
+                    }, callback);
+
+                function callback(response, status) {
+                    if (status == 'OK') {
+                        var origins = response.originAddresses;
+                        var destinations = response.destinationAddresses;
+
+                        for (var i = 0; i < origins.length; i++) {
+                            var results = response.rows[i].elements;
+                            for (var j = 0; j < results.length; j++) {
+                                var element = results[j];
+                                var distance = element.distance.text;
+                                var duration = element.duration.text;
+                                var from = origins[i];
+                                var to = destinations[j];
+                            }
+                            finalUserPosition = obj.formatted_address;
+                            msgChange('Tudo certo! Agora é só chamar seu carro...');
+                            var str = "<p><strong>Destino: </strong>" + obj.formatted_address;
+                            str += "<br>";
+                            str += "<strong>Distância: </strong>" + results[0].distance.text;
+                            str += "<br>";
+                            str += "<strong>Tempo aprox.: </strong>" + results[0].duration.text;
+                            str += "<br>";
+                            str += "<strong>Valor Corrida: </strong>R$" + Math.round((results[0].distance.value * (pricePerKm / 1000)) * 100) / 100;
+                            str += "<br>";
+                            str += "<button id='btncall' class='btn btn-sm btn-primary' onclick='chamarVeiculo(null, " + (results[0].distance.value / 1000) + ");'>chamar carro</button>";
+                            str += "</p>";
+                            //$('#rundetails').html(str);
+                            document.getElementById('rundetails').innerHTML = str;
+                        }
                     }
                 }
             }
-        }
 
-    </script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBnHfMeAC1LvB60v3ms__6KRd1OsnOV77A&callback=makeMap"></script>
-    </script>
+        </script>
+        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBnHfMeAC1LvB60v3ms__6KRd1OsnOV77A&callback=makeMap"></script>
+        </script>
 </body>
 
 </html>
