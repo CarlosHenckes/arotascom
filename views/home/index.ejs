@@ -15,6 +15,10 @@
             background-repeat: no-repeat;
             background-position-x: 40px;
         }
+        #reload { display: none; }
+        #reload:hover {
+            cursor: pointer;
+        }
     </style>
 </head>
 
@@ -407,6 +411,7 @@
                             str += "</p>";
                             //$('#rundetails').html(str);
                             document.getElementById('rundetails').innerHTML = str;
+                            $('#reload').show();
                         }
                     }
                 }
