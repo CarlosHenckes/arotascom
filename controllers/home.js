@@ -12,6 +12,12 @@ module.exports = function (app) {
         },
         frota: function (req, res){
             res.render('home/frota');
+        },
+        cadastro: function(req, res){
+            res.render('home/cadastro');
+        },
+        cadastrar: function(req, res){
+            res.redirect('/frota');
         }
     };
     return HomeController;
