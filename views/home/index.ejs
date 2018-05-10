@@ -15,7 +15,11 @@
             background-repeat: no-repeat;
             background-position-x: 40px;
         }
-        #reload { display: none; }
+
+        #reload {
+            display: none;
+        }
+
         #reload:hover {
             cursor: pointer;
         }
@@ -77,7 +81,9 @@
                         <button id="btnrerun" class="btn btn-default" style="display: none;">Reiniciar</button>
                     </div>
                     <div class="row p-2">
-                        <p class="text-center" style="width: 100%;"><small id="reload">não obrigado, disistí.</small></p>
+                        <p class="text-center" style="width: 100%;">
+                            <small id="reload">não obrigado, disistí.</small>
+                        </p>
                     </div>
                 </div>
             </div>
@@ -110,9 +116,9 @@
 
             $('#btnrerun').on('click', function () { windowReload(); });
 
-            $('#reload').on('click', function(){ windowReload(); });
+            $('#reload').on('click', function () { windowReload(); });
 
-            function windowReload(){
+            function windowReload() {
                 window.location.reload();
             }
 
@@ -152,7 +158,10 @@
                             });
                             markers.push(marker);
                             marker.setMap(mapa);
+                            msgChange('pesquise seu destino abaixo...');
                         });
+                    }, beforeSend: function () {
+                        msgChange('procurando frota...');
                     },
                     type: 'GET',
                     contentType: "application/json"
@@ -203,7 +212,7 @@
                 for (var i = 0; i < markers.length; i++) {
                     markers[i].setMap(map);
                 }
-
+                $('#reload').hide();
                 $.ajax({
                     url: 'https://cors-anywhere.herokuapp.com/https://arotas.herokuapp.com/loc/near/' + coordenadas.lat + '/' + coordenadas.lng + '/100.0',
                     data: {
@@ -246,11 +255,15 @@
                                 hereAreIam.setMap(null);
                                 setRoute(coordenadas, finalUserPosition, (resp) => {
                                     // a viagem terminou
-                                    hereAreIam.setPosition({"lat":carAtendingFinalTripPos.latitude, "lng":carAtendingFinalTripPos.longitude});
+                                    hereAreIam.setPosition({ "lat": carAtendingFinalTripPos.latitude, "lng": carAtendingFinalTripPos.longitude });
                                     hereAreIam.setMap(mapa);
-                                    updateCarPosition(JSON.stringify(carAtendingObj), carAtendingFinalTripPos);
-                                    msgChange('pronto, você chegou ao seu destino... Obrigado!');
-                                    $('#btnrerun').show();
+                                    setTimeout(function () {
+                                        updateCarPosition(JSON.stringify(carAtendingObj), carAtendingFinalTripPos);
+                                        msgChange('pronto, você chegou ao seu destino... Obrigado!');
+                                        $('#btnrerun').show();
+                                        $('#reload').hide();
+                                    }, 2500);
+
                                 });
                             }
                         });
@@ -374,7 +387,6 @@
                 var obj = JSON.parse(decodeURI(obj));
                 var from = new google.maps.LatLng(-23.574050, -46.623072);
                 var dest = new google.maps.LatLng(obj.geometry.location.lat, obj.geometry.location.lng);
-                console.log(obj)
                 var service = new google.maps.DistanceMatrixService();
                 service.getDistanceMatrix(
                     {
