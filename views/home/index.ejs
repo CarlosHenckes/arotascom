@@ -15,6 +15,7 @@
             background-repeat: no-repeat;
             background-position-x: 40px;
         }
+        
         #reload {
             display: none;
         }
@@ -80,7 +81,9 @@
                         <button id="btnrerun" class="btn btn-default" style="display: none;">Reiniciar</button>
                     </div>
                     <div class="row p-2">
-                        <p class="text-center" style="width: 100%;"><small id="reload">não obrigado, disistí.</small></p>
+                        <p class="text-center" style="width: 100%;">
+                            <small id="reload">não obrigado, disistí.</small>
+                        </p>
                     </div>
                 </div>
             </div>
@@ -113,9 +116,9 @@
 
             $('#btnrerun').on('click', function () { windowReload(); });
 
-            $('#reload').on('click', function(){ windowReload(); });
+            $('#reload').on('click', function () { windowReload(); });
 
-            function windowReload(){
+            function windowReload() {
                 window.location.reload();
             }
 
@@ -157,6 +160,8 @@
                             marker.setMap(mapa);
                             msgChange('pesquise seu destino abaixo...');
                         });
+                    }, beforeSend: function () {
+                        msgChange('procurando frota...');
                     },
                     beforeSend: function () {
                         msgChange('procurando frota...');
@@ -253,7 +258,7 @@
                                 hereAreIam.setMap(null);
                                 setRoute(coordenadas, finalUserPosition, (resp) => {
                                     // a viagem terminou
-                                    hereAreIam.setPosition({"lat":carAtendingFinalTripPos.latitude, "lng":carAtendingFinalTripPos.longitude});
+                                    hereAreIam.setPosition({ "lat": carAtendingFinalTripPos.latitude, "lng": carAtendingFinalTripPos.longitude });
                                     hereAreIam.setMap(mapa);
                                     setTimeout(function () {
                                         updateCarPosition(JSON.stringify(carAtendingObj), carAtendingFinalTripPos);
