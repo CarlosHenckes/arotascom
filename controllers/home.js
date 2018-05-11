@@ -35,6 +35,9 @@ module.exports = function (app) {
                 }
             });
             res.redirect('/frota');
+        },
+        sobre: function(req, res){
+            res.render('home/sobre');
         }
     };
     return HomeController;

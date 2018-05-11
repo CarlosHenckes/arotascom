@@ -13,9 +13,12 @@
 
 <body>
     <%- include('../navbar') %>
-
+<div class="row">
+            <img id="progress" src="images/dot.png" style="display: none;">
+        </div>
     <div class="container">
         <h4>Frota de veículos autônomos</h4>
+        
         <table id="cors" class="table">
             <thead>
                 <tr>
@@ -37,6 +40,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
     <script>
+        var obj = $('#progress');
+        var per = 2;
+        var myi;
         $.ajax({
             url: 'https://cors-anywhere.herokuapp.com/https://arotas.herokuapp.com/loc/',
             data: {
@@ -51,6 +57,14 @@
                     $('#cors > tbody:last-child').append('<tr><td>' + data[i].placa + '</td><td>' + 
                         data[i].nomeMotorista + '</td><td>' + 
                         data[i].status + '</td></tr>');
+                        $(obj).fadeOut(300);
+                        clearInterval(myi);
+            }, beforeSend: function(){
+                $(obj).show();
+                myi = setInterval(function(){
+                    per = per + 2;
+                    $(obj).attr("width", per + "%");
+                }, 500);
             },
             type: 'GET',
             contentType: "application/json"

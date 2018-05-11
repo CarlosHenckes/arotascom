@@ -15,6 +15,13 @@
             background-repeat: no-repeat;
             background-position-x: 40px;
         }
+        #reload {
+            display: none;
+        }
+
+        #reload:hover {
+            cursor: pointer;
+        }
     </style>
 </head>
 
@@ -148,7 +155,11 @@
                             });
                             markers.push(marker);
                             marker.setMap(mapa);
+                            msgChange('pesquise seu destino abaixo...');
                         });
+                    },
+                    beforeSend: function () {
+                        msgChange('procurando frota...');
                     },
                     type: 'GET',
                     contentType: "application/json"
@@ -199,7 +210,7 @@
                 for (var i = 0; i < markers.length; i++) {
                     markers[i].setMap(map);
                 }
-
+                $('#reload').hide();
                 $.ajax({
                     url: 'https://cors-anywhere.herokuapp.com/https://arotas.herokuapp.com/loc/near/' + coordenadas.lat + '/' + coordenadas.lng + '/100.0',
                     data: {
@@ -244,9 +255,12 @@
                                     // a viagem terminou
                                     hereAreIam.setPosition({"lat":carAtendingFinalTripPos.latitude, "lng":carAtendingFinalTripPos.longitude});
                                     hereAreIam.setMap(mapa);
-                                    updateCarPosition(JSON.stringify(carAtendingObj), carAtendingFinalTripPos);
-                                    msgChange('pronto, você chegou ao seu destino... Obrigado!');
-                                    $('#btnrerun').show();
+                                    setTimeout(function () {
+                                        updateCarPosition(JSON.stringify(carAtendingObj), carAtendingFinalTripPos);
+                                        msgChange('pronto, você chegou ao seu destino... Obrigado!');
+                                        $('#btnrerun').show();
+                                        $('#reload').hide();
+                                    }, 3000);
                                 });
                             }
                         });
@@ -290,8 +304,8 @@
                     error: function (xhr, status, error) {
                         console.log('An error has occurred: ' + xhr.status + "-" + status + " - " + error);
                     },
-                    //success: function (data) {
-                    //},
+                    success: function (data) {
+                    },
                     type: 'PUT',
                     contentType: "application/json"
                 });
@@ -370,7 +384,6 @@
                 var obj = JSON.parse(decodeURI(obj));
                 var from = new google.maps.LatLng(-23.574050, -46.623072);
                 var dest = new google.maps.LatLng(obj.geometry.location.lat, obj.geometry.location.lng);
-                console.log(obj)
                 var service = new google.maps.DistanceMatrixService();
                 service.getDistanceMatrix(
                     {
@@ -407,6 +420,7 @@
                             str += "</p>";
                             //$('#rundetails').html(str);
                             document.getElementById('rundetails').innerHTML = str;
+                            $('#reload').show();
                         }
                     }
                 }

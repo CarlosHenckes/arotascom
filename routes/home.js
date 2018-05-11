@@ -5,4 +5,5 @@ module.exports = function (app) {
     app.get('/frota', home.frota);
     app.get('/cadastro', home.cadastro);
     app.post('/cadastrar', home.cadastrar);
+    app.get('/sobre', home.sobre);
 };
