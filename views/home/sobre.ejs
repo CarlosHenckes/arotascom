@@ -10,32 +10,98 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <title>ARotas - Outsmarting traffic!</title>
     <style>
-    label {
-        font-weight: 500;
-    }
+        label {
+            font-weight: 500;
+        }
     </style>
 </head>
 
 <body>
     <%- include('../navbar') %>
 
-    <div class="container">
-        <h4>Sobre</h4>
-        <h5>TECNOLOGIA WEBSERVICES E RESTFUL <small>EDUARDO GALEGO</small></h5>
+        <div class="container">
+            <h4>Sobre</h4>
+            <h5>TECNOLOGIA WEBSERVICES E RESTFUL
+                <small>EDUARDO GALEGO</small>
+            </h5>
 
-        <p>
-            <label>Swagger docs: </label>
-            <a href="https://app.swaggerhub.com/apis/carloshenckes/AROTAS-API/1.0">app.swaggerhub.com/apis/carloshenckes/AROTAS-API/1.0</a>
-        </p>
+            <h5>FORMAÇÃO DO GRUPO:</h5>
+            <ul>
+                <li>Alexandre Lima - RM 43042</li>
+                <li>André Capolupo - RM 42933</li>
+                <li>Carlos Henckes - RM 38622</li>
+                <li>Lucas Alexandre - RM 45340</li>
+                <li>Marli Ferreira - RM 44504</li>
+                <li>Tatiane Fernanda - RM 44463</li>
+            </ul>
 
-    </div>
+            <h5>INSTRUÇÕES DE USO:</h5>
 
-    <!-- Optional JavaScript -->
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
-    <script>   
-    </script>
+            <p>A aplicação requer conexão com a internet. É preferível o uso do navegador Chrome.
+            </p>
+            <p>
+                Pode ser solicitado no primeiro acesso a sua localização, aceite, assim a simulação vai posicionar você corretamente. Caso
+                a localização falhe, a simulação vai considerar como ponto de partida a FIAP na av. Lins de Vasconcelos.
+            </p>
+            <p>
+                A caixa de mensagens do lado direito do mapa vai guiar você sobre como pedir seu veículo autônomo e andamento do processo.
+            </p>
+            <ul>
+                <li>Primeiro pesquise o destino final que você deseja;</li>
+                <li>Em seguida selecione o endereço correto da lista;</li>
+                <li>Na tela será apresentado o endereço, distância, tempo de viagem e o valor da sua corrida. Será cobrado um
+                    valor de R$1.10 por quilômetro percorrido;</li>
+                <li>Agora, você pode chamar um carro ou re-iniciar o processo;</li>
+                <li>O sistema vai procurar o veículo disponível que estiver mais proximo de você;</li>
+                <li>Uma simulação vai mostrar o deslocamento do veículo até você e em seguida até o destino selecionado;
+                </li>
+            </ul>
+
+            <h5>TECNOLOGIAS UTILIZADAS:</h5>
+            <ul>
+                <li>website: node js, javascript e jquery </li>
+                <li>api: java, REST</li>
+                <li>DB: MongoDB </li>
+            </ul>
+
+            <h5>DETALHES DO FUNCIONAMENTO DO APP: </h5>
+            <ul>
+                <li>O sistema usa uma api para listar todos os veículos e seu status; </li>
+                <li>Durante o processo de atendimento de uma chamada, o carro mais próximo em um raio de 100 quilômetros é o
+                    escolhido para o atendimento que tenha status 'LIVRE'; </li>
+                <li>O carro selecionado tem seu status alterado para 'EM TRANSITO' e é adicionada a quilômetragem do trajeto
+                    ao seu cadastro;</li>
+                <li>Ao final da corrida o status é novamente alterado para 'LIVRE'; </li>
+                <li>É possível cadastrar um novo veículo; </li>
+                <li>O sistema gera uma lista de todos os veículos e seu status no momento; </li>
+                <li>O sistema gera um relatório da quilômetragem percorrida por cada veículo;</li>
+            </ul>
+            <h5>ACESSO AO PROJETO: </h5>
+            <p>
+                <label>website:</label>
+                <a href="https://github.com/CarlosHenckes/arotascom">
+                    github.com/CarlosHenckes/arotascom</a>
+            </p>
+            <p>
+                <label>api:</label>
+                <a href="https://github.com/CarlosHenckes/arotas">
+                    github.com/CarlosHenckes/arotas</a></p>
+            <p>
+                <label>Swagger docs: </label>
+                <a href="https://app.swaggerhub.com/apis/carloshenckes/AROTAS-API/1.0">app.swaggerhub.com/apis/carloshenckes/AROTAS-API/1.0</a>
+            </p>
+            <p>&nbsp;</p>
+            <p>&nbsp;</p>
+            <p>&nbsp;</p>
+        </div>
+
+        <!-- Optional JavaScript -->
+        <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+        <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+        <script>   
+        </script>
 </body>
+
 </html>
